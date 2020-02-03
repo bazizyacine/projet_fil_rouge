@@ -1,0 +1,54 @@
+---
+- hosts: control
+  tasks:
+  - name: Installation des dépots
+    yum:
+     name: "{{ item }}"
+    loop:
+      - centos-release-openstack-stein
+      - epel-release
+  - name: Installation des paquets Openstack
+    yum:
+     name: "{{ item }}"
+     enablerepo: centos-openstack-stein
+    loop:
+       - chrony
+       - mariadb-server
+       - rabbitmq-server
+       - memcached
+       - openstack-keystone
+       - openstack-utils
+       - python-openstackclient
+       - httpd
+       - mod_wsgi
+       - openstack-glance
+       - openstack-nova
+  - name: activation des services
+    systemd:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop:
+        - mariadb
+        - rabbitmq-server
+        - memcached
+        - chronyd
+  - name: Configuration rabbitmq
+    rabbitmq_user:
+     user: openstack
+     password: Password
+     permissions:
+      - vhost: /
+        configure_priv: .*
+        read_priv: .*
+        write_priv: .*
+     state: present
+  - name: Copie du fihcer sql
+    copy:
+      src: openstack-db.sql
+      dest: /tmp/
+  - name: Creation des base de données OpenStack
+    mysql_db:
+      name: all
+      state: import
+      target: /tmp/openstack-db.sql

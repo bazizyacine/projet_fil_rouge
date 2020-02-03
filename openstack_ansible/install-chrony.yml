@@ -1,0 +1,5 @@
+---
+- name: "Install Chrony and Configure NTP server for time adjustment"
+  hosts: compute
+  roles:
+    - role: "chrony"
