@@ -1,11 +1,13 @@
 pipeline {
-    agent {
-        docker { image 'i386/node' }
-    }
+    agent any
     stages {
-        stage('Test') {
+        stage('Deploy') {
             steps {
-                sh 'node --version'
+                timeout(time: 3, unit: 'MINUTES') {
+                    retry(5) {
+                        sh './flakey-deploy.sh'
+                    }
+                }
             }
         }
     }
