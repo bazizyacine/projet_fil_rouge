@@ -1,13 +1,19 @@
 pipeline {
-    agent any
+    agent {
+        label '!windows'
+    }
+
+    environment {
+        DISABLE_AUTH = 'true'
+        DB_ENGINE    = 'sqlite'
+    }
+
     stages {
-        stage('Deploy') {
+        stage('Build') {
             steps {
-                timeout(time: 3, unit: 'MINUTES') {
-                    retry(5) {
-                        sh './flakey-deploy.sh'
-                    }
-                }
+                echo "Database engine is ${DB_ENGINE}"
+                echo "DISABLE_AUTH is ${DISABLE_AUTH}"
+                sh 'printenv'
             }
         }
     }
